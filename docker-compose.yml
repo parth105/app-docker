@@ -1,0 +1,27 @@
+# Compose file for the dev environment
+# This file uses the image created by Dockerfile and uses it to build the 'infrastructure'
+# Well in this case, we're also sharing volumes to the containers so it can see the django project
+
+version: '3.4'
+
+services:                                                       # <key>:<option>:<value>
+    djangoguninginx:
+        build: .                                                # Path to dir containing Dockerfile; or git url; containers prepended with name of .
+        command: python manage.py runserver 0.0.0.0:8000
+        ports:
+            - 8000:8000
+        env_file: 
+            - ./djangoguninginx.env
+        depends_on: 
+            - postgresql
+    postgresql:
+        image: postgres:11.8-alpine
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        environment: 
+            - POSTGRES_USER=django_user
+            - POSTGRES_PASSWORD=django_password
+            - POSTGRES_DB=django_dev
+    
+volumes:                                                        # 'Top level volume option'; So that data persists beyond container life,
+    postgres_data:                                              #     and can be shared across containers
