@@ -32,8 +32,8 @@ I've changed the layout of the files (like having the .env and .yml) outside the
 ```
 
 ### Dev setup:
-1x django app container (Running with the default dev app server)
-1x postgresql container
+1x django app container (Running with the default dev app server)  
+1x postgresql container  
 
 - Set the DB parameters in the `docker-compose.yml` file - username, password and the database name via `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` respectively.
 - Update the credentials (from the previous step) that our app will use to access the DB in the `djangoguninginx.env` file via `DB_USER`, `DB_PASSWORD` and `DATABASE`. The `DB_HOST` parameter is the 'service name' in the `docker-compose.yml` file.
@@ -44,9 +44,9 @@ I've changed the layout of the files (like having the .env and .yml) outside the
 - Access http://localhost:8000
 
 ### Prod setup:
-1x django app container (Running with the gunicorn app server)
-1x nginx container
-1x postgresql DB container
+1x django app container (Running with the gunicorn app server)  
+1x nginx container  
+1x postgresql DB container  
 
 - Set the DB parameters in the `db.prd.env` file - username, password and the database name via `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` respectively.
 - Update the credentials (from the previous step) that our app will use to access the DB in the `djangoguninginx.prd.env` file via `DB_USER`, `DB_PASSWORD` and `DATABASE`. The `DB_HOST` parameter is the 'service name' in the `docker-compose.prd.yml` file.
