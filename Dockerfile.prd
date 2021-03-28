@@ -1,0 +1,79 @@
+#############
+# Builder   #
+#############
+# This image is used to download and compile stuff. Think of it as a temp environment from which things will be extracted.
+
+# Pull base python image
+FROM python:3.7.7-alpine as builder
+
+# Set a work dir
+WORKDIR /opt/djangoguninginx
+
+# Environ variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# psycopg2 dependencies
+RUN apk update && \
+    apk add postgresql-dev gcc python3-dev musl-dev
+
+# lint - copying project files here to lint them for code syntax etc.
+RUN pip install --upgrade pip
+RUN pip install flake8
+COPY ./djangoguninginx /opt/djangoguninginx
+RUN flake8 --ignore=E501,F401 .
+
+# install dependencies - don't cache wheel files (they're downloaded and will be copied later)
+COPY ./requirements.prd.txt /opt/djangoguninginx/requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /opt/djangoguninginx/wheels -r requirements.txt
+
+
+###########
+# FINAL   #
+###########
+
+# Pull base python image
+FROM python:3.7.7-alpine
+
+# Create the app dir
+ENV APP_HOME=/opt/djangoguninginx
+RUN mkdir -p $APP_HOME
+RUN mkdir $APP_HOME/staticfiles
+WORKDIR $APP_HOME
+
+# create and add user+group
+RUN addgroup -S djangoguninginx && adduser -S djangoguninginx -G djangoguninginx
+
+# install dependencies
+RUN apk update && apk add libpq
+COPY --from=builder /opt/djangoguninginx/wheels /wheels
+COPY --from=builder /opt/djangoguninginx/requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install --no-cache /wheels/*
+
+# copy entrypoint file
+COPY ./entrypoint.prd.sh /opt/djangoguninginx/entrypoint.sh
+
+# copy project
+COPY ./djangoguninginx $APP_HOME
+
+# give user permissions
+RUN chown -R djangoguninginx:djangoguninginx $APP_HOME
+
+# change to user
+USER djangoguninginx
+
+# run entrypoint
+ENTRYPOINT [ "/opt/djangoguninginx/entrypoint.sh" ]
+
+# (django_docker)  parth@Parths-Macitosh  ~/Dev/django_projects/app-docker  docker-compose images
+#          Container                     Repository               Tag         Image Id       Size
+# -------------------------------------------------------------------------------------------------
+# app-docker_djangoguninginx_1   app-docker_djangoguninginx   latest        7f74e2ac08b9   352.1 MB
+# app-docker_postgresql_1        postgres                     11.8-alpine   e0493eb337f4   149.8 MB
+
+# (django_docker)  parth@Parths-Macitosh  ~/Dev/django_projects/app-docker  docker-compose images
+#          Container                     Repository               Tag         Image Id       Size
+# -------------------------------------------------------------------------------------------------
+# app-docker_djangoguninginx_1   app-docker_djangoguninginx   latest        36cb639b6ae3   141.1 MB
+# app-docker_postgresql_1        postgres                     11.8-alpine   e0493eb337f4   149.8 MB
