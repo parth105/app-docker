@@ -1,5 +1,5 @@
 # Overview
-Holds me following this awesome [tutorial](https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/) to host a Django app fronted with nginx and gunicorn.
+Following this awesome [tutorial](https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/) to host a Django app fronted with nginx and gunicorn.
 
 I've changed the layout of the files (like having the .env and .yml) outside the app folder.
 
