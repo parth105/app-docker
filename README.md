@@ -39,7 +39,8 @@ I've changed the layout of the files (like having the .env and .yml) outside the
 - Update the credentials (from the previous step) that our app will use to access the DB in the `djangoguninginx.env` file via `DB_USER`, `DB_PASSWORD` and `DATABASE`. The `DB_HOST` parameter is the 'service name' in the `docker-compose.yml` file.
 - Update the `SECRET_KEY` with a secure string.
 - `cd app-docker`
-- `docker-compose -f docker-compose.yml`
+- Ensure the docker daemon is running as applicable to the OS.
+- `docker-compose -f docker-compose.yml up -d --build`
 - Access http://localhost:8000
 
 ### Prod setup:
@@ -51,5 +52,23 @@ I've changed the layout of the files (like having the .env and .yml) outside the
 - Update the credentials (from the previous step) that our app will use to access the DB in the `djangoguninginx.prd.env` file via `DB_USER`, `DB_PASSWORD` and `DATABASE`. The `DB_HOST` parameter is the 'service name' in the `docker-compose.prd.yml` file.
 - Update the `SECRET_KEY` with a secure string in the `djangoguninginx.prd.env`.
 - `cd app-docker`
-- `docker-compose -f docker-compose.prd.yml`
+- Ensure the docker daemon is running as applicable to the OS.
+- `docker-compose -f docker-compose.prd.yml up -d --build`
 - Access http://localhost:8000
+
+
+### Troubleshooting:
+- From the `app-docker` dir, run `docker-compose -f <prod or dev docker-compose file> ps` to check the status of the containers.
+```
+dev example:
+            Name                          Command               State           Ports
+----------------------------------------------------------------------------------------------
+app-docker_djangoguninginx_1   /opt/djangoguninginx/entry ...   Up      0.0.0.0:8000->8000/tcp
+app-docker_postgresql_1        docker-entrypoint.sh postgres    Up      5432/tcp
+
+```
+- From the `app-docker` dir, run `docker-compose -f <prod or dev docker-compose file> exec -it <container name/id> bash` to get a BASH tty to the container.
+- From the `app-docker` dir, run `docker-compose -f <prod or dev docker-compose file> logs -f --tail=5 <container name/id>` to read STDOUT/STDERR from the container with scrolling.
+
+### Teardown:
+- From the `app-docker` dir, run `docker-compose -f docker-compose.yml stop && docker-compose -f docker-compose.yml down -v --rmi all` to stop the containers and delete volumes and images.
